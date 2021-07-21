@@ -10,3 +10,5 @@ void handle_metrics();
 
 
 #endif    // ifdef WEBSERVER_METRICS
+
+#endif
