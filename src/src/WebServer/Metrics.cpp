@@ -1,4 +1,4 @@
-#include "../WebServer/SysInfoPage.h"
+#include "../WebServer/Metrics.h"
 
 #include "../WebServer/WebServer.h"
 #include "../WebServer/HTML_wrappers.h"
@@ -45,6 +45,64 @@
 
 
 void handle_metrics() {
-    addHtml(F("Hellow World"));
+    int result;
+    String resultString;
+    resultString.reserve(1000);
+
+
+    //uptime
+    resultString = F("# HELP espeasy_uptime current device uptime in minutes\n");
+    resultString += F("# TYPE espeasy_uptime counter\n");        
+    resultString += "espeasy_uptime ";
+    resultString += getValue(LabelType::UPTIME);       
+    resultString += "\n";
+  
+
+    //load
+    resultString += F("# HELP espeasy_load device percentage load\n");
+    resultString += F("# TYPE espeasy_load gauge\n");         
+    resultString += "espeasy_load ";
+    resultString += getValue(LabelType::LOAD_PCT);     
+    resultString += "\n";
+
+    //Free RAM
+    resultString += F("# HELP espeasy_free_ram device amount of RAM free in Bytes\n");
+    resultString += F("# TYPE espeasy_free_ram gauge\n");    
+    resultString += "espeasy_free_ram ";
+    resultString += getValue(LabelType::FREE_MEM);   
+    resultString += "\n";
+
+    //Free RAM
+    resultString += F("# HELP espeasy_free_stack device amount of Stack free in Bytes\n");
+    resultString += F("# TYPE espeasy_free_stack gauge\n");     
+    resultString += "espeasy_free_stack ";
+    resultString += getValue(LabelType::FREE_STACK);  
+    resultString += "\n";
+
+    //Wifi strength
+    resultString += F("# HELP espeasy_wifi_rssi Wifi connection Strength\n");
+    resultString += F("# TYPE espeasy_wifi_rssi gauge\n");   
+    resultString += "espeasy_wifi_rssi ";
+    resultString += getValue(LabelType::WIFI_RSSI); 
+    resultString += "\n";
+
+    //Wifi uptime
+    resultString += F("# HELP espeasy_wifi_connected Time wifi has been connected in milliseconds\n");
+    resultString += F("# TYPE espeasy_wifi_connected counter\n");    
+    resultString += "espeasy_wifi_connected ";
+    resultString += getValue(LabelType::CONNECTED_MSEC);
+    resultString += "\n";
+
+    //Wifi reconnects
+    resultString += F("# HELP espeasy_wifi_reconnects Number of times Wifi has reconnected since boot\n");
+    resultString += F("# TYPE espeasy_wifi_reconnects counter\n");   
+    resultString += "espeasy_wifi_reconnects ";
+    resultString += getValue(LabelType::NUMBER_RECONNECTS); 
+    resultString += "\n";
+
+
+
+    web_server.send(200, F("text/plain;"), resultString);
+
 }
 

@@ -375,6 +375,9 @@ void WebServerInit()
 #ifdef WEBSERVER_SYSINFO
   web_server.on(F("/sysinfo"),     handle_sysinfo);
 #endif // ifdef WEBSERVER_SYSINFO
+#ifdef WEBSERVER_METRICS
+  web_server.on(F("/metrics"),     handle_metrics);
+#endif // ifdef WEBSERVER_METRICS
 #ifdef WEBSERVER_SYSVARS
   web_server.on(F("/sysvars"),     handle_sysvars);
 #endif // WEBSERVER_SYSVARS
