@@ -30,6 +30,7 @@
 #include "../WebServer/SettingsArchive.h"
 #include "../WebServer/SetupPage.h"
 #include "../WebServer/SysInfoPage.h"
+#include "../WebServer/Metrics.h"
 #include "../WebServer/SysVarPage.h"
 #include "../WebServer/TimingStats.h"
 #include "../WebServer/ToolsPage.h"
