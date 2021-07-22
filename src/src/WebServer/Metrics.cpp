@@ -175,7 +175,7 @@ String handle_metrics_devices(){
                               returnString += F("{valueName=\"");
                               returnString += ExtraTaskSettings.TaskDeviceValueNames[varNr];
                               returnString += F("\"} ");
-                              returnString += ExtraTaskSettings.TaskDeviceValueDecimals[varNr];
+                              returnString += formatUserVarNoCheck(x, varNr);
                               returnString += "\n";
                             
                         }
