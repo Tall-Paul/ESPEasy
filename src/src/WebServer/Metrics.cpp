@@ -20,6 +20,22 @@
 #include "../Globals/ESPEasyWiFiEvent.h"
 #include "../Globals/NetworkState.h"
 #include "../Globals/RTC.h"
+# include "../Globals/CPlugins.h"
+# include "../Globals/Device.h"
+# include "../Globals/ExtraTaskSettings.h"
+# include "../Globals/Nodes.h"
+# include "../Globals/Plugins.h"
+# include "../Globals/Protocol.h"
+
+# include "../Static/WebStaticData.h"
+
+# include "../Helpers/_Plugin_SensorTypeHelper.h"
+# include "../Helpers/_Plugin_Helper_serial.h"
+
+
+# include "../../_Plugin_Helper.h"
+
+# include <ESPeasySerial.h>
 
 #include "../Helpers/CompiletimeDefines.h"
 #include "../Helpers/ESPEasyStatistics.h"
@@ -100,9 +116,75 @@ void handle_metrics() {
     resultString += getValue(LabelType::NUMBER_RECONNECTS); 
     resultString += "\n";
 
+    //devices
+    resultString += handle_metrics_devices();
+
 
 
     web_server.send(200, F("text/plain;"), resultString);
 
+}
+
+
+
+String handle_metrics_value_name(const String& valName){
+    return String(valName);
+}
+
+String handle_metrics_value_value(const String& valValue){
+    return String(valValue);
+}
+
+
+
+String handle_metrics_devices(){
+    String returnString = "";
+
+
+    for (taskIndex_t x = 0; x < 128 && validTaskIndex(x); x++)
+    {
+        const deviceIndex_t DeviceIndex = getDeviceIndex_from_TaskIndex(x);
+        const bool pluginID_set         = INVALID_PLUGIN_ID != Settings.TaskDeviceNumber[x];
+         if (pluginID_set){
+             LoadTaskSettings(x);
+            int8_t spi_gpios[3] { -1, -1, -1 };
+            struct EventStruct TempEvent(x);
+            addEnabled(Settings.TaskDeviceEnabled[x]  && validDeviceIndex(DeviceIndex));
+            String deviceName = ExtraTaskSettings.TaskDeviceName;
+            returnString += F("# HELP espeasy_device_");
+            returnString += deviceName;
+            returnString += F(" Values from connected device\n");
+            returnString += F("# TYPE espeasy_device_");
+            returnString += deviceName;
+            returnString += F(" gauge\n");
+            if (validDeviceIndex(DeviceIndex)) {
+                String customValuesString;
+                //const bool customValues = PluginCall(PLUGIN_WEBFORM_SHOW_VALUES, &TempEvent, customValuesString);
+                const bool customValues = 0;
+                if (!customValues)
+                {
+                    const uint8_t valueCount = getValueCountForTask(x);
+                    for (uint8_t varNr = 0; varNr < valueCount; varNr++)
+                    {
+                        if (validPluginID_fullcheck(Settings.TaskDeviceNumber[x]))
+                        {
+                              String valName = String(F("valuename_")) + x + '_' + varNr;
+                              String valValue = String(F("value_")) + x + '_' + varNr;
+                              returnString += F("espeasy_device_");
+                              returnString += deviceName;
+                              returnString += F("{valueName=\"");
+                              returnString += ExtraTaskSettings.TaskDeviceValueNames[varNr];
+                              returnString += F("\"} ");
+                              returnString += ExtraTaskSettings.TaskDeviceValueDecimals[varNr];
+                              returnString += "\n";
+                            
+                        }
+                    }
+                }
+            }
+            
+         }
+    }
+    return returnString;
 }
 
